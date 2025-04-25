@@ -6,6 +6,8 @@ const eventSchema = new mongoose.Schema({
   address: { type: String },
   meetingLink: { type: String },
   audience: { type: String, required: true },
+  date: { type: String, required: true },   // e.g., '2025-05-15'
+  time: { type: String, required: true },   // e.g., '15:30' or '3:30 PM'
   orgId: { type: mongoose.Schema.Types.ObjectId, required: true },
   createdAt: { type: Date, default: Date.now },
 });

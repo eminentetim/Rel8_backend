@@ -3,7 +3,7 @@ const cloudinaryService = require('../services/cloudinary.service');
 
 exports.createEvent = async (req, res) => {
   try {
-    const { details, address, meetingLink, audience } = req.body;
+    const { details, address, meetingLink, audience, date, time } = req.body;
     const bannerUrl = req.file ? await cloudinaryService.uploadFile(req.file) : null;
     const event = new Event({
       bannerUrl,
@@ -11,6 +11,8 @@ exports.createEvent = async (req, res) => {
       address,
       meetingLink,
       audience,
+      date,
+      time,
       orgId: req.tenant,
     });
     await event.save();
@@ -19,6 +21,7 @@ exports.createEvent = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 exports.getEvents = async (req, res) => {
   try {
@@ -31,11 +34,18 @@ exports.getEvents = async (req, res) => {
 
 exports.updateEvent = async (req, res) => {
   try {
-    const { details, address, meetingLink, audience } = req.body;
+    const { details, address, meetingLink, audience, date, time } = req.body;
     const bannerUrl = req.file ? await cloudinaryService.uploadFile(req.file) : null;
     const event = await Event.findByIdAndUpdate(req.params.id, {
-      bannerUrl, details, address, meetingLink, audience
+      bannerUrl,
+      details,
+      address,
+      meetingLink,
+      audience,
+      date,
+      time
     }, { new: true });
+
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
@@ -44,6 +54,7 @@ exports.updateEvent = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 exports.deleteEvent = async (req, res) => {
   try {

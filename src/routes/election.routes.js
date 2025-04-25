@@ -1,5 +1,6 @@
 const express = require('express');
-const { createElection, createCandidate, castVote, getElectionResults, updateElection, updateCandidate, deleteElection, deleteCandidate } = require('../controllers/election.controller');
+const { createElection, createCandidate, castVote, getElectionResults, updateElection, updateCandidate, deleteElection, deleteCandidate, getElections,
+  getElectionById, getCandidates, getCandidateById } = require('../controllers/election.controller');
 const auth = require('../middleware/auth');
 const tenant = require('../middleware/tenant');
 const upload = require('multer')({ storage: require('../middleware/upload').storage });
@@ -52,5 +53,17 @@ router.put('/candidate/:id', auth, tenant, upload.fields([{ name: 'image' }, { n
 router.delete('/:id', auth, tenant, deleteElection);
 
 router.delete('/candidate/:id', auth, tenant, deleteCandidate);
+
+// Get all elections
+router.get('/', auth, tenant, getElections);
+
+// Get single election by ID
+router.get('/:id', auth, tenant, getElectionById);
+
+// Get all candidates (optionally filter by electionId or positionId via query params)
+router.get('/candidate', auth, tenant, getCandidates);
+
+// Get single candidate by ID
+router.get('/candidate/:id', auth, tenant, getCandidateById);
 
 module.exports = router;

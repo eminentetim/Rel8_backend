@@ -1,5 +1,5 @@
 const express = require('express');
-const { sendGroupMessage, sendPrivateMessage, getGroupMessages, getPrivateMessages } = require('../controllers/chat.controller');
+const { sendGroupMessage, sendPrivateMessage, getGroupMessages, getPrivateMessages, updateGroupMessage, deleteGroupMessage, updatePrivateMessage, deletePrivateMessage } = require('../controllers/chat.controller');
 const auth = require('../middleware/auth');
 const tenant = require('../middleware/tenant');
 const { check } = require('express-validator');
@@ -21,5 +21,19 @@ router.post('/private', auth, tenant, [
 router.get('/group', auth, tenant, getGroupMessages);
 
 router.get('/private', auth, tenant, getPrivateMessages);
+
+router.put('/group/:id', auth, tenant, [
+  check('content').notEmpty().withMessage('Content is required'),
+  validate,
+], updateGroupMessage);
+
+router.delete('/group/:id', auth, tenant, deleteGroupMessage);
+
+router.put('/private/:id', auth, tenant, [
+  check('content').notEmpty().withMessage('Content is required'),
+  validate,
+], updatePrivateMessage);
+
+router.delete('/private/:id', auth, tenant, deletePrivateMessage);
 
 module.exports = router;

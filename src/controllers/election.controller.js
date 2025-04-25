@@ -123,3 +123,49 @@ exports.deleteCandidate = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+exports.getElections = async (req, res) => {
+  try {
+    const elections = await Election.find({ orgId: req.tenant });
+    res.status(200).json(elections);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+exports.getElectionById = async (req, res) => {
+  try {
+    const election = await Election.findOne({ _id: req.params.id, orgId: req.tenant });
+    if (!election) {
+      return res.status(404).json({ message: 'Election not found' });
+    }
+    res.status(200).json(election);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+exports.getCandidates = async (req, res) => {
+  try {
+    const filter = {};
+    if (req.query.electionId) filter.electionId = req.query.electionId;
+    if (req.query.positionId) filter.positionId = req.query.positionId;
+
+    const candidates = await Candidate.find(filter);
+    res.status(200).json(candidates);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+exports.getCandidateById = async (req, res) => {
+  try {
+    const candidate = await Candidate.findById(req.params.id);
+    if (!candidate) {
+      return res.status(404).json({ message: 'Candidate not found' });
+    }
+    res.status(200).json(candidate);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};

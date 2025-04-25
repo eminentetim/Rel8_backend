@@ -42,6 +42,18 @@ exports.uploadMembers = async (req, res) => {
       })
       .on('end', async () => {
         await Member.insertMany(members);
+
+        // Send email to the member with a link to set their password
+        const token = jwt.sign({ userId: members[0]._id, orgId: members[0].orgId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const setPasswordLink = `https://yourdomain.com/api/members/set-password/${token}`;
+
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: members[0].email,
+          subject: 'Set Your Password',
+          html: `<p>Please click the following link to set your password: <a href="${setPasswordLink}">Set Password</a></p>`,
+        });
+
         res.status(200).json({ message: 'Members uploaded successfully' });
       });
 
@@ -54,6 +66,11 @@ exports.setPassword = async (req, res) => {
   try {
     const { token, password } = req.body;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Ensure the password is being set by the member themselves
+    if (req.user.userId !== decoded.userId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
 
     const member = await Member.findById(decoded.userId);
     if (!member) {
@@ -92,6 +109,27 @@ exports.deleteMember = async (req, res) => {
       return res.status(404).json({ message: 'Member not found' });
     }
     res.status(200).json({ message: 'Member deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+exports.getAllMembers = async (req, res) => {
+  try {
+    const members = await Member.find({ orgId: req.tenant });
+    res.status(200).json(members);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+exports.getMemberById = async (req, res) => {
+  try {
+    const member = await Member.findById(req.params.id);
+    if (!member) {
+      return res.status(404).json({ message: 'Member not found' });
+    }
+    res.status(200).json(member);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

@@ -1,5 +1,5 @@
 const express = require('express');
-const { uploadMembers, setPassword, updateMember, deleteMember } = require('../controllers/member.controller');
+const { uploadMembers, setPassword, updateMember, deleteMember, getAllMembers, getMemberById } = require('../controllers/member.controller');
 const auth = require('../middleware/auth');
 const tenant = require('../middleware/tenant');
 const upload = require('multer')({ storage: require('../middleware/upload').storage });
@@ -19,5 +19,9 @@ router.post('/set-password', [
 router.put('/:id', auth, updateMember);
 
 router.delete('/:id', auth, deleteMember);
+
+router.get('/', auth, tenant, getAllMembers);
+
+router.get('/:id', auth, tenant, getMemberById);
 
 module.exports = router;
